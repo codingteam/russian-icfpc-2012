@@ -48,6 +48,8 @@ void Draw_Image(SDL_Surface *surface)
     int clr = 0;
     Uint8 a, b, c, t;
 
+    glClear(GL_COLOR_BUFFER_BIT);
+
     Get_Pixel(surface, x, y, &c, &b, &a, &t);
     while(a != 0 || b != 0 || c != 0) {
         printf("%d %d\n", x, y);
