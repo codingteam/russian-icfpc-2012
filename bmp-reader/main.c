@@ -52,7 +52,8 @@ void Draw_Image(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy)
 
     Get_Pixel(surface, x, y, &c, &b, &a, &t);
     while(a != 0 || b != 0 || c != 0) {
-        printf("%d %d\n", x, y);
+        //printf("%d %d\n", x, y);
+        printf("%d\n", 54 + 200*y + x);
 
         if(x >= surface->w || y >= surface->h)
             break;
