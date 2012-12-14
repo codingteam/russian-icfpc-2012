@@ -39,13 +39,13 @@ run memory ip = do
       hiword = fromIntegral $ word `shiftR` 16
       loword :: Int16
       loword = fromIntegral word .&. 0xffff
-  printf "%x: hi=%x lo=%d" ip hiword loword
+  printf "%x: hi=%x lo=%d\n" ip hiword loword
   run memory $ ip + fromIntegral loword
 
 main = do
   [ips] <- getArgs
   let ip = read ips
   fileData <- readBMP "pic.bmp"
-  memory <- newListArray (0, 1337111-1) fileData
+  memory <- newListArray (0, 1337111-1) (fileData ++ repeat 0)
   -- forM_ fileData print
   run memory ip
