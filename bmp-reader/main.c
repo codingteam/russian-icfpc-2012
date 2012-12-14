@@ -71,6 +71,10 @@ void Draw_Image(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy)
         x += vx;
         y += vy;
         Get_Pixel(surface, x, y, &c, &b, &a, &t);
+#ifdef SLOWLY
+        SDL_Delay(10);
+        SDL_GL_SwapBuffers();
+#endif
     } 
 
     SDL_GL_SwapBuffers();
