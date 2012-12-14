@@ -39,12 +39,12 @@ void Event_Loop()
     }
 }
 
-void Draw_Image(SDL_Surface *surface)
+void Draw_Image(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy)
 {
     /* int x = 70, y = 79; */
     /* Sint8 vx = 18, vy = 26; */
-    int x = 50, y = 22;
-    Sint8 vx = 24, vy = 34;
+    /* int x = 50, y = 22; */
+    /* Sint8 vx = 24, vy = 34; */
     int clr = 0;
     Uint8 a, b, c, t;
 
@@ -77,10 +77,16 @@ void Draw_Image(SDL_Surface *surface)
 
 int main(int argc, char **argv)
 {
-    if(argc < 2) {
-        printf("Usage: ./bmp-reader <bmp-file>\n");
+    if(argc < 6) {
+        printf("Usage: ./bmp-reader <bmp-file> <x> <y> <vx> <vy>\n");
         return 1;
     }
+
+    const char *bmp_file = argv[1];
+    int x = atoi(argv[2]);
+    int y = atoi(argv[3]);
+    Sint8 vx = atoi(argv[4]);
+    Sint8 vy = atoi(argv[5]);
 
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -94,14 +100,14 @@ int main(int argc, char **argv)
 
     glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1, 1);
 
-    SDL_Surface *image = SDL_LoadBMP(argv[1]);
+    SDL_Surface *image = SDL_LoadBMP(bmp_file);
 
     if(image == NULL) {
         fprintf(stderr, "Unable to load bitmap: %s\n", SDL_GetError());
         return 1;
     }
 
-    Draw_Image(image);
+    Draw_Image(image, x, y, vx, vy);
     Event_Loop();
 
     SDL_Quit();

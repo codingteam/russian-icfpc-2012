@@ -1,0 +1,25 @@
+These three # signs marked the beginning of data segment as well as
+first comment. Grep is your friend now.
+
+RGB triplets in this file do not really store colors.
+
+Each triplet of bytes correspoding to a pixel contains values A,B,C
+(in this order), each a signed 8-bit integer.
+
+Remember that BMP stores image upside-down, so first bytes of data
+segment are first triplets of last row of image.
+
+Let X=70 and Y=79 be coordinates of current pixel. Let VX=18 and VY=26
+(signed 8-bit integers) be current vector. Let CLR=0.
+
+Loop: take values A,B,C from triplet corresponding to current pixel in this BMP.
+
+Xor VX with A, VY with B and CLR with C.
+
+If CLR is not 0 draw a line from (X,Y) to (X+VX,Y+VY).
+
+Add VX to X and VY to Y, repeat the loop until A=B=C=0.
+
+So first visited points should be (70,79), (70,87), (64,79), (64,87)...
+
+Codeword: play
