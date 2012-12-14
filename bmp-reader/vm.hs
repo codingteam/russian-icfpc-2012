@@ -40,7 +40,9 @@ run memory ip = do
       loword :: Int16
       loword = fromIntegral word .&. 0xffff
   printf "%x: hi=%x lo=%d\n" ip hiword loword
-  run memory $ ip + fromIntegral loword
+  if loword == 0
+    then putStrLn "Lo = 0, stop."
+    else run memory $ ip + fromIntegral loword
 
 main = do
   [ips] <- getArgs
