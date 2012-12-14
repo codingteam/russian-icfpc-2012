@@ -39,7 +39,7 @@ run memory ip = do
       hiword = fromIntegral $ word `shiftR` 16
       loword :: Int16
       loword = fromIntegral word .&. 0xffff
-  printf "%x: hi=%x lo=%d\n" ip hiword loword
+  printf "IP= 0x%x: hi=0x%x lo=%d (word: %x)\n" ip hiword loword word
   if loword == 0
     then putStrLn "Lo = 0, stop."
     else run memory $ ip + fromIntegral loword
