@@ -42,6 +42,7 @@ void try_address(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy)
     Uint8 a, b, c, t;
     int j = 0;
 
+    Get_Pixel(surface, x, y, &c, &b, &a, &t);
     while(a != 0 || b != 0 || c != 0) {
         printf("%d: %d %d\n", j, x, y);
         //printf("%d\n", 54 + 200*y + x);
@@ -55,6 +56,7 @@ void try_address(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy)
         x += vx;
         y += vy;
         Get_Pixel(surface, x, y, &c, &b, &a, &t);
+        j++;
     } 
 }
 
