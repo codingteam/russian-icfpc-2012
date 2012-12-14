@@ -1,13 +1,10 @@
 CFLAGS = `sdl-config --cflags` `pkg-config gl --cflags`
 LIBS = `sdl-config --libs` `pkg-config gl --libs`
 
-all: bmp-reader test
+all: functions.o bmp-reader test dump-bmp
 
-bmp-reader: main.c functions.c
-	gcc $(CFLAGS) -o $@ main.c functions.c $(LIBS)
-
-test: test.c functions.c
-	gcc $(CFLAGS) -o $@ test.c functions.c $(LIBS)
+%: %.c functions.o
+	gcc $(CFLAGS) -o $@ $< functions.o $(LIBS)
 
 clean:
-	rm bmp-reader test *.o
+	rm bmp-reader test dump-bmp *.o

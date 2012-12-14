@@ -44,8 +44,7 @@ void try_address(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy)
 
     Get_Pixel(surface, x, y, &c, &b, &a, &t);
     while(a != 0 || b != 0 || c != 0) {
-        printf("%d: %d %d\n", j, x, y);
-        //printf("%d\n", 54 + 200*y + x);
+        printf("%d: %d %d \t at 0x%x\n", j, x, y, 54 + (200*y + x)*3);
 
         if(x >= surface->w || y >= surface->h)
             break;
@@ -58,6 +57,19 @@ void try_address(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy)
         Get_Pixel(surface, x, y, &c, &b, &a, &t);
         j++;
     } 
+}
+
+void Dump_Image(SDL_Surface *surface)
+{
+    int x,y;
+    Uint8 r, g, b, t;
+
+    for (y=0; y < surface->h; y++) {
+      for (x=0; x < surface->w; x++) {
+        Get_Pixel(surface, x, y, &r, &g, &b, &t);
+        printf("(%d,%d):\t%d %d %d\n", x,y, r,g,b);
+      }
+    }
 }
 
 void Draw_Image(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy)
@@ -74,7 +86,7 @@ void Draw_Image(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy)
     Get_Pixel(surface, x, y, &c, &b, &a, &t);
     while(a != 0 || b != 0 || c != 0) {
         //printf("%d %d\n", x, y);
-        printf("%d\n", 54 + 200*y + x);
+        printf("%d\n", 54 + (200*y + x)*3);
 
         if(x >= surface->w || y >= surface->h)
             break;
