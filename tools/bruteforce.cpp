@@ -35,9 +35,9 @@ bool Check_Address(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy,
 
     Get_Pixel(surface, x, y, &c, &b, &a, &t);
     while((a != 0 || b != 0 || c != 0) &&
-          Within_Surface(surface, x, y) //&&
+          Within_Surface(surface, x, y) &&
 	  //(correct_lines + .0) / lines >= 0.95 &&
-          /*lines < 2000*/)
+          lines < 2000)
         {
 
             vx ^= a;
@@ -85,7 +85,11 @@ int main(int argc, char **argv)
     // Bruteforce
     cout << "Bruteforce..." << endl;
     for(int x = 0; x < image->w; ++x)
+    {
+      cout << "START X = " << x << endl;
         for(int y = 0; y < image->h; ++y)
+	{
+	  //cout << "START Y = " << y << endl;
 	  for(int vx = -x; vx < image->w - x; ++vx)
                 for(int vy = -y; vy < image->h - y; ++vy)
 		{
@@ -93,6 +97,8 @@ int main(int argc, char **argv)
 		  if(Check_Address(image, x, y, vx, vy, coords))
 		    cout << x << ' ' << y << ' ' << (int)vx << ' ' << (int)vy << endl;
 		}
+	}
+    }
 
     return 0;
 }
