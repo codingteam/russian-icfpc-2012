@@ -7,6 +7,7 @@
 #define SCREEN_HEIGHT 600
 
 void Get_Pixel(SDL_Surface *surface, int x, int y, Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a);
+Uint32 Get_Pixel(SDL_Surface *surface, int x, int y);
 
 bool Within_Surface(SDL_Surface *surface, int x, int y);
 

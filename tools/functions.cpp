@@ -13,6 +13,18 @@ void Get_Pixel(SDL_Surface *surface, int x, int y, Uint8 *r, Uint8 *g, Uint8 *b,
         }
 }
 
+Uint32 Get_Pixel(SDL_Surface *surface, int x, int y)
+{
+    if(0 <= x && x < surface->w)
+        if(0 <= y && y < surface->h) {
+            int bpp = surface->format->BytesPerPixel;
+            Uint8 *p = (Uint8*)surface->pixels + y * surface->pitch + x * bpp;
+            return *(Uint32*)p;
+        }
+
+    return 0;
+}
+
 bool Within_Surface(SDL_Surface *surface, int x, int y)
 {
     return 0 <= x && x < surface->w && 0 <= y && y < surface->h;
