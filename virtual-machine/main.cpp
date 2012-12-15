@@ -134,7 +134,7 @@ void emulate(uint32_t ip, uint32_t * const memory)
 			std::cout << (char)memory[ip + 1];
 			break;
 		default:
-			std::cerr << "Bad command " << command << " at " << ip << "(commands: " << counter << ")" << std::endl;
+			//std::cerr << "Bad command " << command << " at " << ip << "(commands: " << counter << ")" << std::endl;
 			return;
 		}
 
@@ -144,7 +144,7 @@ void emulate(uint32_t ip, uint32_t * const memory)
 
 	if (counter >= 10000)
 	{
-		std::cout << "10000 commands executed." << std::endl;
+		//std::cout << "10000 commands executed." << std::endl;
 	}
 }
 
@@ -170,12 +170,12 @@ int main(int argc, char* argv[])
 	{
 		try
 		{
-			std::cout << "IP = " << ip << std::endl;
+			std::cout << /*"IP = " << ip <<*/ std::endl;
 			emulate(ip, memory);
 		}
 		catch (...)
 		{
-			std::cout << "exception" << std::endl;
+			//std::cout << "exception" << std::endl;
 		}
 	}
 }
