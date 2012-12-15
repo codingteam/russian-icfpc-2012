@@ -7,13 +7,17 @@ void init_memory(int32_t * const memory, const char * const path)
 	std::ifstream data(path);
 	int32_t *ptr = memory;
 
-	char buffer[4];
-	int32_t count = 0;
-	while (count = data.readsome(buffer, 4))
+	std::cout << "Reading memory image file... ";
+	int32_t buffer;
+	while (!data.eof())
 	{
-		std::memmove(ptr, buffer, count);
-		++ptr;
+		data >> buffer;
+		*ptr = buffer;
+		std::cout << buffer << std::endl;
+		ptr++;
 	}
+	
+	std::cout << (ptr - memory) << " words read" << std::endl;
 }
 
 int main(int argc, char* argv[])
