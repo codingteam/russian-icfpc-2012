@@ -2,18 +2,16 @@
 #include <fstream>
 #include <iostream>
 
-void init_memory(int32_t * const memory, const char * const path)
+void init_memory(uint32_t * const memory, const char * const path)
 {
-	std::ifstream data(path);
-	int32_t *ptr = memory;
+	std::ifstream data(path, std::fstream::in);
+	uint32_t *ptr = memory;
 
 	std::cout << "Reading memory image file... ";
-	int32_t buffer;
-	while (!data.eof())
+	uint32_t buffer;
+	while (data >> buffer)
 	{
-		data >> buffer;
 		*ptr = buffer;
-		std::cout << buffer << std::endl;
 		ptr++;
 	}
 	
@@ -30,13 +28,13 @@ int main(int argc, char* argv[])
 
 	const char * const path = argv[1];
 
-	int32_t * const memory = new int32_t[13371111];
+	uint32_t * const memory = new uint32_t[13371111];
 	init_memory(memory, path);
 
 	size_t ip = 32;
 	while (true)
 	{
-		int32_t instruction = memory[ip];
+		uint32_t instruction = memory[ip];
 		int16_t command = instruction >> 16;
 		int16_t shift = instruction;
 		switch (command)
