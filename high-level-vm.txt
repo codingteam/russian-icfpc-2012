@@ -1,0 +1,16 @@
+Imagine a system with a lot of parallel processes, each with its own program and variables. On each iteration each process runs its program once. After all of them ran their programs follows next iteration. Variables of each process keep their values between iterations. All variables are integer. Initially they are filled with arbitrary values between 0 and 255. Each process has a mailbox, can send values to other processes (put in their mailbox) and receive values by reading from its own mailbox.
+Here are the programs:
+
+[DATA EXPUNGED]
+
+  [h,h,h,h] <- receive(4),
+  h <- (h + h + h + h + 2) / 4,
+  Value <-
+
+[DATA EXPUNGED]
+
+* h / 64 +
+
+[DATA EXPUNGED]
+
+Run 7 iterations. Now Value variables of processes are intensities of pixels of a 1024x1024 bitmap filled rowwise.
