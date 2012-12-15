@@ -1,3 +1,5 @@
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 
@@ -7,25 +9,26 @@
 
 using namespace std;
 
+int buffer[60000];
+
 int main(int argc, char **argv)
 {
     if(argc < 2) {
-        printf("Usage: ./dump-data-segment <bmp-file>\n");
+        printf("Usage: ./dump-data-segment <bmp-file> <data-file>\n");
         return 1;
     }
 
     const char *bmp_file = argv[1];
+    const char *data_file = argv[2];
 
-    SDL_Surface *image = SDL_LoadBMP(bmp_file);
-    if(image == NULL) {
-        fprintf(stderr, "Unable to load bitmap: %s\n", SDL_GetError());
-        return 1;
-    }
+    FILE *data = fopen(data_file, "r");
+    for(int i = 0; i < 60000; ++i)
+        fscanf(data, "%d", &buffer[i]);
+    fclose(data);
 
-    // for(int y = 0; y < image->h; ++y)
-    for(int y = image->h - 1; y >= 0; --y)
-        for(int x = 0; x < image->w; ++x)
-            cout << Get_Pixel(image, x, y) << endl;
+    FILE *bmp = fopen(bmp_file, "ab");
+    fwrite(buffer, 3, 80000, bmp);
+    fclose(bmp);
 
     return 0;
 }
