@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <SDL/SDL.h>
 #include <GL/gl.h>
+#include "functions.h"
 
 void Get_Pixel(SDL_Surface *surface, int x, int y, Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a)
 {
@@ -11,6 +11,11 @@ void Get_Pixel(SDL_Surface *surface, int x, int y, Uint8 *r, Uint8 *g, Uint8 *b,
             Uint8 *p = (Uint8*)surface->pixels + y * surface->pitch + x * bpp;
             SDL_GetRGBA(*(Uint32*)p, surface->format, r, g, b, a);
         }
+}
+
+bool Within_Surface(SDL_Surface *surface, int x, int y)
+{
+    return 0 <= x && x < surface->w && 0 <= y && y < surface->h;
 }
 
 void Event_Loop()
