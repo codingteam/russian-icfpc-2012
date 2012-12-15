@@ -1,0 +1,42 @@
+= 50:22/24.34
+	VVVM:
+ A Very Von Neumann Virtual Machine
+
+Its memory is an array of 13371111
+words. Eash word is a 32 bit integer
+little endian. VVVM has one register:
+IP - instruction pointer.
+
+ Data segment of this file must be
+placed in the beginning of VVVM memory
+
+ Next page is at 41:19/37.25
+
+= 41:19/37.25
+There are 11 instructions in VVVM
+Each takes 2-4 words:
+instruction word followed by operands
+
+Higher 16 bits of instruction word
+denote one of 11 commands
+Lower 16 bits contain a signed integer
+Add it to IP to get to next instruction
+
+Just one font is used here
+You do not really need an address
+to find another page
+
+= 97:35/36.43
+Commands 1-8 are binary operations
+OP: + - * / and or << >>
+A[IP+A[IP+1]] = A[IP+A[IP+2]] OF A[IP+3]
+
+9 means bitwise not:
+A[IP+A[IP+1]] = NOT A[IP+2]
+
+10 means if less:
+IF A[IP+2] < A[IP+3] THEN IP += A[IP+1]
+
+Command 11 prints A[IP+1] as char
+
+VVVM starts with IP=32
