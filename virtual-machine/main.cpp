@@ -1,13 +1,19 @@
 #include <cstdint>
+#include <exception>
 #include <fstream>
 #include <iostream>
 
 void init_memory(uint32_t * const memory, const char * const path)
 {
+	//for (int i = 0; i < 13371111; ++i)
+	//{
+	//	memory[i] = 0;
+	//}
+
 	std::ifstream data(path, std::fstream::in);
 	uint32_t *ptr = memory;
 
-	std::cout << "Reading memory image file... ";
+	//std::cout << "Reading memory image file... ";
 	uint32_t buffer;
 	while (data >> buffer)
 	{
@@ -15,7 +21,7 @@ void init_memory(uint32_t * const memory, const char * const path)
 		ptr++;
 	}
 	
-	std::cout << (ptr - memory) << " words read" << std::endl;
+	//std::cout << (ptr - memory) << " words read" << std::endl;
 }
 
 void check_address(uint32_t addr)
@@ -150,26 +156,24 @@ void emulate(uint32_t ip, uint32_t * const memory)
 
 int main(int argc, char* argv[])
 {
-	if (argc < 2)
+	if (argc < 3)
 	{
-		std::cout << "Usage: virtual-machine path-to-datafile" << std::endl;
+		std::cout << "Usage: virtual-machine path-to-datafile start-ip final-ip" << std::endl;
 		return 1;
 	}
 
 	const char * const path = argv[1];
+	int first_ip = std::atoi(argv[2]);
+	int last_ip = std::atoi(argv[3]);
 
 	uint32_t * const memory = new uint32_t[13371111];
-	for (int i = 0; i < 13371111; ++i)
-	{
-		memory[i] = 0;
-	}
 
-	init_memory(memory, path);
-
-	for (uint32_t ip = 0; ip < 60000; ++ip)
+	for (uint32_t ip = first_ip; ip < last_ip; ++ip)
 	{
 		try
 		{
+			std::cerr << "IP = " << ip << std::endl;
+			init_memory(memory, path);
 			std::cout << /*"IP = " << ip <<*/ std::endl;
 			emulate(ip, memory);
 		}
