@@ -3,9 +3,6 @@
 #include <SDL/SDL.h>
 #include <GL/gl.h>
 
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
-
 void Get_Pixel(SDL_Surface *surface, int x, int y, Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a)
 {
     if(0 <= x && x < surface->w)
@@ -39,6 +36,42 @@ void Event_Loop()
     }
 }
 
+void try_address(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy)
+{
+    int clr = 0;
+    Uint8 a, b, c, t;
+    int j = 0;
+
+    Get_Pixel(surface, x, y, &c, &b, &a, &t);
+    while(a != 0 || b != 0 || c != 0) {
+        printf("%d: %d %d \t at 0x%x\n", j, x, y, 54 + (200*y + x)*3);
+
+        if(x >= surface->w || y >= surface->h)
+            break;
+
+        vx ^= a;
+        vy ^= b;
+        clr ^= c;
+        x += vx;
+        y += vy;
+        Get_Pixel(surface, x, y, &c, &b, &a, &t);
+        j++;
+    } 
+}
+
+void Dump_Image(SDL_Surface *surface)
+{
+    int x,y;
+    Uint8 r, g, b, t;
+
+    for (y=0; y < surface->h; y++) {
+      for (x=0; x < surface->w; x++) {
+        Get_Pixel(surface, x, y, &r, &g, &b, &t);
+        printf("(%d,%d):\t%d %d %d\n", x,y, r,g,b);
+      }
+    }
+}
+
 void Draw_Image(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy)
 {
     /* int x = 70, y = 79; */
@@ -53,7 +86,7 @@ void Draw_Image(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy)
     Get_Pixel(surface, x, y, &c, &b, &a, &t);
     while(a != 0 || b != 0 || c != 0) {
         //printf("%d %d\n", x, y);
-        //printf("%d\n", 54 + 200*y + x);
+        //printf("%d\n", 54 + (200*y + x)*3);
 
         if(x >= surface->w || y >= surface->h)
             break;
@@ -81,42 +114,3 @@ void Draw_Image(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy)
     SDL_GL_SwapBuffers();
 }
 
-int main(int argc, char **argv)
-{
-    if(argc < 6) {
-        printf("Usage: ./bmp-reader <bmp-file> <x> <y> <vx> <vy>\n");
-        return 1;
-    }
-
-    const char *bmp_file = argv[1];
-    int x = atoi(argv[2]);
-    int y = atoi(argv[3]);
-    Sint8 vx = atoi(argv[4]);
-    Sint8 vy = atoi(argv[5]);
-
-    SDL_Init(SDL_INIT_VIDEO);
-
-    SDL_Surface *screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT,
-                                           32, SDL_DOUBLEBUF | SDL_OPENGL);
-
-    if(screen == NULL) {
-        fprintf(stderr, "Unable to set video mode: %s\n", SDL_GetError());
-        return 1;
-    }
-
-    glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1, 1);
-
-    SDL_Surface *image = SDL_LoadBMP(bmp_file);
-
-    if(image == NULL) {
-        fprintf(stderr, "Unable to load bitmap: %s\n", SDL_GetError());
-        return 1;
-    }
-
-    Draw_Image(image, x, y, vx, vy);
-    Event_Loop();
-
-    SDL_Quit();
-
-    return 0;
-}
