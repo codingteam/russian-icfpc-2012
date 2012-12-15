@@ -29,6 +29,11 @@ int main(int argc, char* argv[])
 	const char * const path = argv[1];
 
 	uint32_t * const memory = new uint32_t[13371111];
+	for (int i = 0; i < 13371111; ++i)
+	{
+		memory[i] = 0;
+	}
+
 	init_memory(memory, path);
 
 	size_t ip = 32;
