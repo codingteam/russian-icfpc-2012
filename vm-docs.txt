@@ -29,7 +29,7 @@ to find another page
 = 97:35/36.43
 Commands 1-8 are binary operations
 OP: + - * / and or << >>
-A[IP+A[IP+1]] = A[IP+A[IP+2]] OF A[IP+3]
+A[IP+A[IP+1]] = A[IP+A[IP+2]] OP A[IP+3]
 
 9 means bitwise not:
 A[IP+A[IP+1]] = NOT A[IP+2]
