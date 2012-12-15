@@ -39,7 +39,6 @@ bool Check_Address(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy,
 	  //(correct_lines + .0) / lines >= 0.95 &&
           lines < 2000)
         {
-
             vx ^= a;
             vy ^= b;
             clr ^= c;
@@ -47,6 +46,7 @@ bool Check_Address(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy,
             if(clr != 0) {
 	      if (vx > 8 || vy > 8)
 		return false;
+
 	      lines++;
 	      if(coords.find(make_pair(vx, vy)) != coords.end())
 		correct_lines++;
@@ -56,8 +56,13 @@ bool Check_Address(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy,
             y += vy;
             Get_Pixel(surface, x, y, &c, &b, &a, &t);
         }
-    //cout << correct_lines << "/" << lines << endl;
-    return correct_lines > 10 && (correct_lines + .0) / lines >= 0.95;
+
+    bool result = correct_lines > 10 && (correct_lines + .0) / lines >= 0.95;
+    if (result) {
+      cout << lines << " (" << x << ", " << y << ") ";
+    }
+
+    return result;
 }
 
 int main(int argc, char **argv)
@@ -93,6 +98,8 @@ int main(int argc, char **argv)
 	  for(int vx = -x; vx < image->w - x; ++vx)
                 for(int vy = -y; vy < image->h - y; ++vy)
 		{
+		  if (abs(vx) > 128 || abs(vy) > 128)
+		    continue;
 		  //cout << "Checking " << x << ' ' << y << ' ' << (int)vx << ' ' << (int)vy << endl;
 		  if(Check_Address(image, x, y, vx, vy, coords))
 		    cout << x << ' ' << y << ' ' << (int)vx << ' ' << (int)vy << endl;
