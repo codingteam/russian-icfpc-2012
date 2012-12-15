@@ -3,7 +3,7 @@
  A Very Von Neumann Virtual Machine
 
 Its memory is an array of 13371111
-words. Eash word is a 32 bit integer
+words. Each word is a 32 bit integer
 little endian. VVVM has one register:
 IP - instruction pointer.
 
