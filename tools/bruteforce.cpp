@@ -16,27 +16,28 @@ void Read_Coords(set<pair<Sint8, Sint8> > &coords, const char *coord_file)
 {
     ifstream fin(coord_file);
 
-    Sint8 vx, vy;
+    int vx, vy;
     while(fin >> vx >> vy) {
-        coords.insert(make_pair(vx, vy));
-        coords.insert(make_pair(-vx, -vy));
+      //cout << vx << ":" << vy << endl;
+      coords.insert(make_pair<Sint8, Sint8>(vx, vy));
+        coords.insert(make_pair<Sint8, Sint8>(-vx, -vy));
     }
 }
 
 bool Check_Address(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy,
                    const set<pair<Sint8, Sint8> > &coords)
 {
-    int lines = 1;
-    int correct_lines = 1;
+    int lines = 0;
+    int correct_lines = 0;
 
     int clr = 0;
     Uint8 a, b, c, t;
 
     Get_Pixel(surface, x, y, &c, &b, &a, &t);
     while((a != 0 || b != 0 || c != 0) &&
-          Within_Surface(surface, x, y) &&
-          (correct_lines + .0) / lines >= 0.95 &&
-          lines < 2000)
+          Within_Surface(surface, x, y) //&&
+	  //(correct_lines + .0) / lines >= 0.95 &&
+          /*lines < 2000*/)
         {
 
             vx ^= a;
@@ -44,17 +45,19 @@ bool Check_Address(SDL_Surface *surface, int x, int y, Sint8 vx, Sint8 vy,
             clr ^= c;
 
             if(clr != 0) {
-                lines++;
-                if(coords.find(make_pair(vx, vy)) != coords.end())
-                    correct_lines++;
+	      if (vx > 8 || vy > 8)
+		return false;
+	      lines++;
+	      if(coords.find(make_pair(vx, vy)) != coords.end())
+		correct_lines++;
             }
 
             x += vx;
             y += vy;
             Get_Pixel(surface, x, y, &c, &b, &a, &t);
         }
-
-    return (correct_lines + .0) / lines >= 0.95;
+    //cout << correct_lines << "/" << lines << endl;
+    return correct_lines > 10 && (correct_lines + .0) / lines >= 0.95;
 }
 
 int main(int argc, char **argv)
@@ -83,10 +86,13 @@ int main(int argc, char **argv)
     cout << "Bruteforce..." << endl;
     for(int x = 0; x < image->w; ++x)
         for(int y = 0; y < image->h; ++y)
-            for(Sint8 vx = -x; vx < image->w - x; ++vx)
-                for(Sint8 vy = -y; vy < image->h - y; ++vy)
-                    if(Check_Address(image, x, y, vx, vy, coords))
-                        cout << x << ' ' << y << ' ' << vx << ' ' << vy << endl;
+	  for(int vx = -x; vx < image->w - x; ++vx)
+                for(int vy = -y; vy < image->h - y; ++vy)
+		{
+		  //cout << "Checking " << x << ' ' << y << ' ' << (int)vx << ' ' << (int)vy << endl;
+		  if(Check_Address(image, x, y, vx, vy, coords))
+		    cout << x << ' ' << y << ' ' << (int)vx << ' ' << (int)vy << endl;
+		}
 
     return 0;
 }
