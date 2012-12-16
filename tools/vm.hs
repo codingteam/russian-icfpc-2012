@@ -40,13 +40,8 @@ readBMP path = do
              rest <- go
              return (word:rest)
 
-putc :: Output -> Int32 -> IO ()
-putc var x = do
-  val <- readIORef var
-  writeIORef var $ val ++ [x]
-
-run :: Integer -> Memory -> Output -> Address -> IO ()
-run j memory out ip = do
+run :: Integer -> Memory -> Address -> IO ()
+run j memory ip = do
 
     let readMem offset = {-trace ("R " ++ show offset) $-} readArray memory offset
         writeMem offset value = writeArray memory offset value
@@ -58,7 +53,7 @@ run j memory out ip = do
         loword :: Int16
         loword = fromIntegral word .&. 0xffff
 
-    let goNext = run (j+1) memory out $ ip + fromIntegral loword
+    let goNext = run (j+1) memory $ ip + fromIntegral loword
 
     -- printf "IP= 0x%x: hi=0x%x lo=%d (word: %x)\n" ip hiword loword word
     if hiword <= 8
@@ -91,12 +86,11 @@ run j memory out ip = do
                     x <- readMem (ip + 2)
                     y <- readMem (ip + 3)
                     if x < y
-                      then run (j+1) memory out (ip + offset)
+                      then run (j+1) memory (ip + offset)
                       else goNext
               11 -> do
                     c <- readMem (ip + 1)
                     printf "%c" c
-                    putc out c
                     goNext
               _  -> goNext
               -- _  -> fail $ "Unknown opcode: " ++ show hiword
@@ -108,11 +102,9 @@ main = do
   fileData <- readBMP "../pic.bmp"
   forM_ [ip1 .. ip2] $ \ip -> do
       memory <- newListArray (0, 13371111-1) (fileData ++ repeat 0)
-      out <- newIORef []
-      run 0 memory out ip
+      putStrLn $ "IP=" ++ show ip
+      run 0 memory ip
        `catch`
          (\(e :: SomeException) -> putStrLn $ "IP=" ++ show ip ++ ": Exception: " ++ show e )
-      res <- readIORef out
-      putStrLn $ "IP=" ++ show ip ++ ": " ++ map (chr . fromIntegral) res
 
 

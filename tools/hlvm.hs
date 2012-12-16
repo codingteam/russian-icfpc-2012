@@ -98,7 +98,10 @@ chop x
 main = do
   [filename] <- getArgs
   string <- readFile $ filename
-  let processes = parse (lines string) []
+  let ps = parse (lines string) []
+  processes <- forM ps $ \p -> do
+                  var <- newIORef 0
+                  return $ p {valueVar = var}
   putStrLn $ show $ length processes
 
   counter <- newTVarIO 0
