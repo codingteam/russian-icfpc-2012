@@ -1,24 +1,37 @@
-import Control.Concurrent.STM.TChan
+import Control.Monad
+import Control.Concurrent
+import Control.Concurrent.STM
+import qualified Data.IntMap as M
 import System.Environment
 
-data Process = Process { id :: Integer
-                       , sendList :: [Integer]
+--   send Value to process 348047,
+--   [L,Q,V,I] <- receive(4),
+--   P <- (L + Q + V + I + 2) / 4,
+--   Value <- -16 * P / 64 + 28.
+data Process = Process { pid :: Int
+                       , sendList :: [Int]
                        , variables :: [Char]
-                       , m :: Integer
+                       , m :: Int  -- ^ multiplier
                        , v :: Char
-                       , s :: Integer
-                       , value :: Integer }
+                       , s :: Int -- ^ end summand
+                       }
 
-send processId value = undefined
+type ChanArray = M.IntMap (TChan Int)
 
-step process chan = do
-  mapM (\id -> send id value) sendList
-  values <- mapM read [1..4] chan
-  process { value = getValue values }
-    where getValue vs = (m process) * result / 64 + (s process)
-          result   vs = ((sum vs) + 2) / 4
-
+step :: ChanArray -> Process -> IO ()
+step chans p = do
+  let Just inbox = M.lookup (pid p) chans
+  (a,b,c,d) <- atomically $ do
+                 a' <- readTChan inbox
+                 b' <- readTChan inbox
+                 c' <- readTChan inbox
+                 d' <- readTChan inbox
+                 return (a', b', c', d')
+  let t = (a + b + c + d + 2) `div` 4
+      value = (m p) * t `div` 64 + (s p)
+  forM_ (sendList p) $ \j -> do
+    let Just to = M.lookup j chans
+    atomically $ writeTChan to value
 
 main = do
-  [filename] <- getArgs
-  return 0
+  print "Hello world!"
