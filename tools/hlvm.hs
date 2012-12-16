@@ -19,10 +19,16 @@ data Process = Process { pid :: Int
                        , sendList :: [Int]
                        , variables :: [Char]
                        , m :: Int  -- ^ multiplier
-                       , v :: Char
                        , s :: Int -- ^ end summand
                        , valueVar :: IORef Int
                        }
+
+defaultProcess = Process { pid = 0
+                         , sendList = []
+                         , variables = []
+                         , m = 1
+                         , s = 0
+                         }
 
 type ChanArray = M.IntMap (TChan Int)
 
@@ -53,10 +59,10 @@ launchProcesses counter ps = do
         atomically $ modifyTVar counter (+1)
         return ()
 
-isProcess s = "Process" `isPrefixOf` s
-isSendValue s = "send Value" `isPrefixOf` s
-isVariables s = "[" `isPrefixOf` s
-isFormula s = "Value <-" `isPrefixOf` s
+isProcess s   = "Process" `isPrefixOf` s
+isSendValue s = "  send Value" `isPrefixOf` s
+isVariables s = "  [" `isPrefixOf` s
+isFormula s   = "  Value <-" `isPrefixOf` s
 
 getSingle r s = (fromJust $ matchRegex (mkRegex r) s) !! 0
 
@@ -73,7 +79,7 @@ getMS s = map read (fromJust $ matchRegex (mkRegex "Value <- (-?[0-9+]) * . / 64
 
 parse :: [String] -> [Process] -> [Process]
 parse (x:xs) ps   | isProcess x =
-                      parse (xs) (Process { pid = getPid x } : ps)
+                      parse (xs) (defaultProcess { pid = getPid x } : ps)
 parse (x:xs) (p:ps) | isSendValue x =
                         let newPid = getSendPid x
                             process = p { sendList = newPid : sendList p }
@@ -95,6 +101,9 @@ chop x
   | x >= 255  = 255
   | otherwise = fromIntegral x
 
+showProcess process =
+    "Process " ++ (show $ pid process) ++ " variables " ++ (show $ variables process) ++ " sendList " ++ (show $ sendList process) ++ " multiplier " ++ (show $ m process) ++ " summ " ++ (show $ s process)
+
 main = do
   [filename] <- getArgs
   string <- readFile $ filename
@@ -102,7 +111,7 @@ main = do
   processes <- forM ps $ \p -> do
                   var <- newIORef 0
                   return $ p {valueVar = var}
-  putStrLn $ show $ length processes
+  putStrLn $ showProcess $ processes !! 0
 
   counter <- newTVarIO 0
   launchProcesses counter processes
@@ -123,5 +132,3 @@ main = do
   let bitmap = B.pack $ concat pixels
       bmp    = packRGBA32ToBMP 1024 1024 bitmap
   writeBMP "output.bmp" bmp
-
-
