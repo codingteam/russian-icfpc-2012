@@ -28,14 +28,14 @@ void check_address(int32_t addr)
 {
 	if (addr < 0 || addr >= 13371111)
 	{
-		throw std::exception("invalid address");
+		throw std::exception(/*"invalid address"*/);
 	}
 }
 
 void emulate(int32_t ip, int32_t * const memory)
 {
 	int counter = 0;
-	while (counter < 10000)
+	while (true)
 	{
 		check_address(ip);
 		int32_t instruction = memory[ip];
@@ -76,7 +76,7 @@ void emulate(int32_t ip, int32_t * const memory)
 			check_address(ip + memory[ip + 2]);
 			if (memory[ip + 3] == 0)
 			{
-				throw std::exception("division by zero");
+				throw std::exception(/*"division by zero"*/);
 			}
 			memory[ip + memory[ip + 1]] = memory[ip + memory[ip + 2]] / memory[ip + 3];
 			break;
@@ -147,10 +147,10 @@ void emulate(int32_t ip, int32_t * const memory)
 		++counter;
 	}
 
-	if (counter >= 10000)
-	{
-		std::cerr << "10000 commands executed." << std::endl;
-	}
+	//if (counter >= 10000)
+	//{
+	//	std::cerr << "10000 commands executed." << std::endl;
+	//}
 }
 
 int main(int argc, char* argv[])
