@@ -2,7 +2,10 @@ import Control.Monad
 import Control.Concurrent
 import Control.Concurrent.STM
 import qualified Data.IntMap as M
+import Data.Maybe
+import Data.List
 import System.Environment
+import Text.Regex
 
 --   send Value to process 348047,
 --   [L,Q,V,I] <- receive(4),
@@ -33,5 +36,18 @@ step chans p = do
     let Just to = M.lookup j chans
     atomically $ writeTChan to value
 
+isProcess s = "Process" `isPrefixOf` s
+
+getPid :: String -> Int
+getPid s = read $ (fromJust $ matchRegex (mkRegex "Process ([0-9]+):") s) !! 0
+
+parse :: [String] -> [Process] -> [Process]
+parse (x : xs) ps | isProcess x =
+                      parse (xs) (Process { pid = getPid x } : ps)
+parse _ ps = ps
+
 main = do
-  print "Hello world!"
+  [filename] <- getArgs
+  string <- readFile $ filename
+  processes = parse $ lines string
+  return $ length processes
