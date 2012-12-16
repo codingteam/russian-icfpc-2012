@@ -1,6 +1,7 @@
 import Control.Monad
 import Control.Concurrent
 import Control.Concurrent.STM
+import Data.IORef
 import qualified Data.IntMap as M
 import Data.Maybe
 import Data.List
@@ -17,12 +18,17 @@ data Process = Process { pid :: Int
                        , m :: Int  -- ^ multiplier
                        , v :: Char
                        , s :: Int -- ^ end summand
+                       , valueVar :: IORef Int
                        }
 
 type ChanArray = M.IntMap (TChan Int)
 
 step :: ChanArray -> Process -> IO ()
 step chans p = do
+  value <- readIORef (valueVar p)
+  forM_ (sendList p) $ \j -> do
+    let Just to = M.lookup j chans
+    atomically $ writeTChan to value
   let Just inbox = M.lookup (pid p) chans
   (a,b,c,d) <- atomically $ do
                  a' <- readTChan inbox
@@ -32,9 +38,7 @@ step chans p = do
                  return (a', b', c', d')
   let t = (a + b + c + d + 2) `div` 4
       value = (m p) * t `div` 64 + (s p)
-  forM_ (sendList p) $ \j -> do
-    let Just to = M.lookup j chans
-    atomically $ writeTChan to value
+  writeIORef (valueVar p) value
 
 isProcess s = "Process" `isPrefixOf` s
 
