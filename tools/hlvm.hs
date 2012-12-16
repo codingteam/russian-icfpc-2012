@@ -14,12 +14,16 @@ data Process = Process { pid :: Int
                        , m :: Int  -- ^ multiplier
                        , v :: Char
                        , s :: Int -- ^ end summand
+                       , value :: Int
                        }
 
 type ChanArray = M.IntMap (TChan Int)
 
-step :: ChanArray -> Process -> IO ()
+step :: ChanArray -> Process -> IO Process
 step chans p = do
+  forM_ (sendList p) $ \j -> do
+    let Just to = M.lookup j chans
+    atomically $ writeTChan to (value p)
   let Just inbox = M.lookup (pid p) chans
   (a,b,c,d) <- atomically $ do
                  a' <- readTChan inbox
@@ -28,10 +32,8 @@ step chans p = do
                  d' <- readTChan inbox
                  return (a', b', c', d')
   let t = (a + b + c + d + 2) `div` 4
-      value = (m p) * t `div` 64 + (s p)
-  forM_ (sendList p) $ \j -> do
-    let Just to = M.lookup j chans
-    atomically $ writeTChan to value
+      newValue = (m p) * t `div` 64 + (s p)
+  return $ p {value = newValue}
 
 main = do
   print "Hello world!"
