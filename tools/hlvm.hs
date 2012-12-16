@@ -8,6 +8,7 @@ import Data.Word
 import Data.Maybe
 import Data.List
 import System.Environment
+import System.Random
 import Text.Regex
 import Codec.BMP -- from `bmp' package
 
@@ -47,7 +48,8 @@ launchProcesses :: TVar Int -> [Process] -> IO ()
 launchProcesses counter ps = do
   chans <- replicateM (length ps) newTChanIO
   let chansMap = M.fromList $ zip (map pid ps) chans
-  forM_ ps $ \p ->
+  forM_ ps $ \p -> do
+    putStrLn $ "Launching process " ++ show (pid p)
     forkIO $ do
         replicateM 7 $ step chansMap p
         atomically $ modifyTVar counter (+1)
@@ -99,13 +101,16 @@ main = do
   [filename] <- getArgs
   string <- readFile $ filename
   let ps = parse (lines string) []
+  putStrLn $ show $ length ps
   processes <- forM ps $ \p -> do
-                  var <- newIORef 0
+                  rnd <- randomRIO (0, 255)
+                  var <- newIORef rnd
                   return $ p {valueVar = var}
-  putStrLn $ show $ length processes
 
+  putStrLn "IORefs created."
   counter <- newTVarIO 0
   launchProcesses counter processes
+  putStrLn "Processes launched."
 
   -- wait for all processes
   atomically $ do
