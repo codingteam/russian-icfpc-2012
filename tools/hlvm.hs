@@ -40,6 +40,15 @@ step chans p = do
       value = (m p) * t `div` 64 + (s p)
   writeIORef (valueVar p) value
 
+launchProcesses :: [Process] -> IO ()
+launchProcesses ps = do
+  chans <- replicateM (length ps) newTChanIO
+  let chansMap = M.fromList $ zip (map pid ps) chans
+  forM_ ps $ \p ->
+    forkIO $ do
+        replicateM 7 $ step chansMap p
+        return ()
+
 isProcess s = "Process" `isPrefixOf` s
 isSendValue s = "send Value" `isPrefixOf` s
 isVariables s = "[" `isPrefixOf` s
@@ -80,3 +89,4 @@ main = do
   [filename] <- getArgs
   string <- readFile $ filename
   putStrLn $ show $ length $ parse (lines string) []
+
