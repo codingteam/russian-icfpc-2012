@@ -41,14 +41,38 @@ step chans p = do
   writeIORef (valueVar p) value
 
 isProcess s = "Process" `isPrefixOf` s
+isSendValue s = "send Value" `isPrefixOf` s
+isVariables s = "[" `isPrefixOf` s
+isFormula s = "Value <-" `isPrefixOf` s
+
+getSingle r s = (fromJust $ matchRegex (mkRegex r) s) !! 0
 
 getPid :: String -> Int
-getPid s = read $ (fromJust $ matchRegex (mkRegex "Process ([0-9]+):") s) !! 0
+getPid s = read $ getSingle "Process ([0-9]+):" s
+
+getSendPid :: String -> Int
+getSendPid s = read $ getSingle "send Value to process ([0-9]+)," s
+
+getVariables :: String -> [Char]
+getVariables s = map read (fromJust $ matchRegex (mkRegex "[(.),(.),(.),(.)] <- receive(4),") s)
+
+getMS s = map read (fromJust $ matchRegex (mkRegex "Value <- (-?[0-9+]) * . / 64 +? ?(-?[0-9]+)\\.") s)
 
 parse :: [String] -> [Process] -> [Process]
-parse (x : xs) ps | isProcess x =
+parse (x:xs) ps   | isProcess x =
                       parse (xs) (Process { pid = getPid x } : ps)
-
+parse (x:xs) (p:ps) | isSendValue x =
+                        let newPid = getSendPid x
+                            process = p { sendList = newPid : sendList p }
+                        in parse xs (process : ps)
+parse (x:xs) (p:ps) | isVariables x =
+                        let variables = getVariables x
+                            process = p { variables = variables }
+                        in parse xs (process : ps)
+parse (x:xs) (p:ps) | isFormula x =
+                        let [m, s] = getMS x
+                            process = p { m = m, s = s }
+                        in parse xs (process : ps)
 parse (x : xs) ps = parse xs ps
 parse [] ps       = ps
 
