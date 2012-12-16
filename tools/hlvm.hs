@@ -3,10 +3,13 @@ import Control.Concurrent
 import Control.Concurrent.STM
 import Data.IORef
 import qualified Data.IntMap as M
+import qualified Data.ByteString as B
+import Data.Word
 import Data.Maybe
 import Data.List
 import System.Environment
 import Text.Regex
+import Codec.BMP -- from `bmp' package
 
 --   send Value to process 348047,
 --   [L,Q,V,I] <- receive(4),
@@ -40,13 +43,14 @@ step chans p = do
       value = (m p) * t `div` 64 + (s p)
   writeIORef (valueVar p) value
 
-launchProcesses :: [Process] -> IO ()
-launchProcesses ps = do
+launchProcesses :: TVar Int -> [Process] -> IO ()
+launchProcesses counter ps = do
   chans <- replicateM (length ps) newTChanIO
   let chansMap = M.fromList $ zip (map pid ps) chans
   forM_ ps $ \p ->
     forkIO $ do
         replicateM 7 $ step chansMap p
+        atomically $ modifyTVar counter (+1)
         return ()
 
 isProcess s = "Process" `isPrefixOf` s
@@ -85,8 +89,36 @@ parse (x:xs) (p:ps) | isFormula x =
 parse (x : xs) ps = parse xs ps
 parse [] ps       = ps
 
+chop :: Int -> Word8
+chop x
+  | x <= 0    = 0
+  | x >= 255  = 255
+  | otherwise = fromIntegral x
+
 main = do
   [filename] <- getArgs
   string <- readFile $ filename
-  putStrLn $ show $ length $ parse (lines string) []
+  let processes = parse (lines string) []
+  putStrLn $ show $ length processes
+
+  counter <- newTVarIO 0
+  launchProcesses counter processes
+
+  -- wait for all processes
+  atomically $ do
+    count <- readTVar counter
+    if count < length processes
+      then retry
+      else return ()
+
+  let psMap = M.fromList [(pid p, valueVar p) | p <- processes]
+  pixels <- forM [0 .. 1024*1024 - 1] $ \j -> do
+              let Just var = M.lookup j psMap
+              result <- readIORef var
+              let x = chop result
+              return [x, x, x, 0]
+  let bitmap = B.pack $ concat pixels
+      bmp    = packRGBA32ToBMP 1024 1024 bitmap
+  writeBMP "output.bmp" bmp
+
 
