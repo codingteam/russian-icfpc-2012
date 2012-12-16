@@ -1,0 +1,20 @@
+
+Codeword: MANIAC
+Imagine a system with a lot of parallel processes, each with its own program and variables. On each iteration each process runs its program once. After all of them ran their programs follows next iteration. Variables of each process keep their values between iterations. All variables are integer. Initially they are filled with arbitrary values between 0 and 255. Each process has a mailbox, can send values to other processes (put in their mailbox) and receive values by reading from its own mailbox.
+Here are the programs:
+Process 327438:
+  send Value to process 233125,
+  send Value to process 114668,
+  send Value to process 113287,
+  [Q,J,P,W] <- receive(4),
+  T <- (Q + J + P + W + 2) / 4,
+  Value <- -40 * T / 64 + 54.
+
+Process 816191:
+  send Value to process 869710,
+  send Value to process 584835,
+  send Value to process 64025,
+  [M,T,O,L] <- receive(4),
+  E <- (M + T + O + L + 2) / 4,
+  Value <- 43 * E / 64 -1.
+
