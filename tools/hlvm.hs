@@ -48,10 +48,11 @@ getPid s = read $ (fromJust $ matchRegex (mkRegex "Process ([0-9]+):") s) !! 0
 parse :: [String] -> [Process] -> [Process]
 parse (x : xs) ps | isProcess x =
                       parse (xs) (Process { pid = getPid x } : ps)
-parse _ ps = ps
+
+parse (x : xs) ps = parse xs ps
+parse [] ps       = ps
 
 main = do
   [filename] <- getArgs
   string <- readFile $ filename
-  processes = parse $ lines string
-  return $ length processes
+  putStrLn $ show $ length $ parse (lines string) []
