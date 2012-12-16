@@ -50,9 +50,17 @@ step chans p = do
       value = (m p) * t `div` 64 + (s p)
   writeIORef (valueVar p) value
 
+sequencel xs = foldl k (\r -> return $ r []) xs id
+    where
+      k g m = \r -> do
+        x <- m
+        g (r . (x:))
+
 launchProcesses :: TVar Int -> [Process] -> IO ()
 launchProcesses counter ps = do
-  chans <- replicateM (length ps) newTChanIO
+  putStrLn $ "Creating " ++ show (length ps) ++ " Chans."
+  chans <- sequencel $ replicate (length ps) newTChanIO
+  putStrLn "Channels created."
   let chansMap = M.fromList $ zip (map pid ps) chans
   forM_ ps $ \p -> do
     putStrLn $ "Launching process " ++ show (pid p)
