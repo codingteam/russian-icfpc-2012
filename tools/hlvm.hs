@@ -66,22 +66,22 @@ isSendValue s = "  send Value" `isPrefixOf` s
 isVariables s = "  [" `isPrefixOf` s
 isFormula s   = "  Value <-" `isPrefixOf` s
 
-getSingle r s = (fromJust $ matchRegex (mkRegex r) s) !! 0
+getSingle r s = head $ fromJust $ matchRegex (mkRegex r) s
 
 getPid :: String -> Int
 getPid s = read $ getSingle "Process ([0-9]+):" s
 
 getSendPid :: String -> Int
-getSendPid s = read $ getSingle "send Value to process ([0-9]+)," s
+getSendPid s = read $ getSingle "  send Value to process ([0-9]+)," s
 
 getVariables :: String -> [Char]
-getVariables s = map read (fromJust $ matchRegex (mkRegex "[(.),(.),(.),(.)] <- receive(4),") s)
+getVariables s = map head (fromJust $ matchRegex (mkRegex "  \\[(.),(.),(.),(.)\\] <- receive\\(4\\),") s)
 
-getMS s = map read (fromJust $ matchRegex (mkRegex "Value <- (-?[0-9+]) * . / 64 +? ?(-?[0-9]+)\\.") s)
+getMS s = map read (fromJust $ matchRegex (mkRegex "  Value <- (-?[0-9]+) \\* . / 64 \\+? ?(-?[0-9]+)\\.") s)
 
 parse :: [String] -> [Process] -> [Process]
-parse (x:xs) ps   | isProcess x =
-                      parse (xs) (defaultProcess { pid = getPid x } : ps)
+parse (x:xs) ps     | isProcess x =
+                        parse (xs) (defaultProcess { pid = getPid x } : ps)
 parse (x:xs) (p:ps) | isSendValue x =
                         let newPid = getSendPid x
                             process = p { sendList = newPid : sendList p }
@@ -115,7 +115,7 @@ main = do
                   rnd <- randomRIO (0, 255)
                   var <- newIORef rnd
                   return $ p {valueVar = var}
-  putStrLn $ showProcess $ processes !! 0
+  putStrLn $ showProcess $ head processes
 
   putStrLn "IORefs created."
   counter <- newTVarIO 0
