@@ -46,9 +46,7 @@ putc var x = do
   writeIORef var $ val ++ [x]
 
 run :: Integer -> Memory -> Output -> Address -> IO ()
-run j memory out ip
-  | j >= 10000 = fail $ "A cycle."
-  | otherwise = do
+run j memory out ip = do
 
     let readMem offset = {-trace ("R " ++ show offset) $-} readArray memory offset
         writeMem offset value = writeArray memory offset value
@@ -97,9 +95,11 @@ run j memory out ip
                       else goNext
               11 -> do
                     c <- readMem (ip + 1)
+                    printf "%c" c
                     putc out c
                     goNext
-              _  -> fail $ "Unknown opcode: " ++ show hiword
+              _  -> goNext
+              -- _  -> fail $ "Unknown opcode: " ++ show hiword
 
 main = do
   [ips1, ips2] <- getArgs
@@ -107,18 +107,12 @@ main = do
       ip2 = read ips2
   fileData <- readBMP "../pic.bmp"
   forM_ [ip1 .. ip2] $ \ip -> do
-      memory <- newListArray (0, 1337111-1) (fileData ++ repeat 0)
-      forkIO $ do
-         out <- newIORef []
-         do
-           (do
-            run 0 memory out ip
-            res <- readIORef out
-            putStrLn $ "IP=" ++ show ip ++ ": " ++ map (chr . fromIntegral) res)
-          `catch`
-            (\(e :: SomeException) ->
-                do
-                res <- readIORef out
-                putStrLn $ "IP=" ++ show ip ++ ": " ++ map (chr . fromIntegral) res
-                print e)
+      memory <- newListArray (0, 13371111-1) (fileData ++ repeat 0)
+      out <- newIORef []
+      run 0 memory out ip
+       `catch`
+         (\(e :: SomeException) -> putStrLn $ "IP=" ++ show ip ++ ": Exception: " ++ show e )
+      res <- readIORef out
+      putStrLn $ "IP=" ++ show ip ++ ": " ++ map (chr . fromIntegral) res
+
 
